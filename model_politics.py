@@ -344,7 +344,7 @@ class ChatAgent:
         self,
         model_name: str,
         provider: str = "openai",
-        temperature: float = 0.0,
+        temperature: float = 1.0,
         max_tokens: int = 10,
         base_url: str = None,
     ):
