@@ -1,6 +1,8 @@
 # AI Political Utilities
 
-This repository contains a script for computing political utilities of LLMs. The script evaluates how LLMs and political entities (politicians/platforms) would prefer different policy options, then visualizes the results using PCA to show political alignment in a 2D space.
+This repository contains a script for computing political utilities of LLMs. The script evaluates how LLMs and political entities (politicians/platforms) would prefer different policy options, then visualizes the results using PCA to show political alignment in a 2D space, e.g.,
+
+![image](https://github.com/user-attachments/assets/14657ea4-38b3-4394-88c5-f7acdba7b4b0)
 
 ## Overview
 
