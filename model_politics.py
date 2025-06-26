@@ -436,6 +436,24 @@ def _plot_pca(
     combined = np.vstack([entity_vecs] + ai_vecs)
     pca = PCA(n_components=2)
     coords = pca.fit_transform(combined)
+
+    # Anchor rule: ensure Bernie Sanders appears on the left-hand side (negative PC1).
+    if "Bernie Sanders" in entity_names:
+        try:
+            bernie_idx = entity_names.index("Bernie Sanders")
+            # Flip PC1 axis if Bernie is on the right (positive PC1 value)
+            if coords[bernie_idx, 0] > 0:
+                coords[:, 0] *= -1
+                pca.components_[0] *= -1  # Keep loading vector consistent
+
+            # After possible PC1 flip, ensure Bernie is above the x-axis (quadrant II)
+            if coords[bernie_idx, 1] < 0:
+                coords[:, 1] *= -1
+                pca.components_[1] *= -1
+        except ValueError:
+            # Bernie Sanders not found in list – ignore anchoring.
+            pass
+
     n_ent = len(entity_vecs)
     ent_coords = coords[:n_ent]
     ai_coords = coords[n_ent:]
