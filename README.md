@@ -3,7 +3,7 @@ Ensure API keys are set in the environment variables (example in `dotenv` file).
 ```bash
 export OPENAI_API_KEY=<api_key>
 export ANTHROPIC_API_KEY=<api_key>
-export GOOGLE_API_KEY=<api_key>
+export GEMINI_API_KEY=<api_key>
 export XAI_API_KEY=<api_key>
 ```
 

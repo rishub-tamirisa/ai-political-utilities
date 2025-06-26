@@ -19,7 +19,7 @@ from collections import defaultdict
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
-import openai
+import openai  # pip install --upgrade openai
 import torch
 import torch.nn.functional as F
 from sklearn.decomposition import PCA
@@ -391,13 +391,18 @@ class ChatAgent:
 
     async def chat(self, messages: List[Dict[str, str]], n: int = 1):
         """Return n completions (default 1)."""
-        resp = await openai.AsyncOpenAI(api_key=self.api_key, base_url=self.base_url).chat.completions.create(
-            model=self.model,
-            messages=messages,
-            temperature=self.temperature,
-            max_tokens=self.max_tokens,
-            n=n,
-        )
+        _kwargs = {
+            "model": self.model,
+            "messages": messages,
+            "temperature": self.temperature,
+            "max_tokens": self.max_tokens,
+            "n": n,
+        }
+        # https://github.com/googleapis/python-genai/issues/626
+        if self.provider == "google":
+            _kwargs.pop("max_tokens") 
+
+        resp = await openai.AsyncOpenAI(api_key=self.api_key, base_url=self.base_url).chat.completions.create(**_kwargs)
         if n == 1:
             return resp.choices[0].message.content.strip()
         return [c.message.content.strip() for c in resp.choices]
