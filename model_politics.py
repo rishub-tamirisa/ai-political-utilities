@@ -241,7 +241,7 @@ class ThurstonianActiveLearner:
         lr: float = 0.01,
         edge_multiplier: float = 2.0,
         degree: int = 2,
-        num_edges_per_iter: int = 500,
+        num_edges_per_iter: int = 200,
         P: float = 10.0,
         Q: float = 20.0,
         K: int = 5,
@@ -559,6 +559,7 @@ async def _compute_utilities_if_needed(
     temperature: float = 1.0,
     max_tokens: int = 10,
     concurrency_limit: int = 30,
+    num_edges_per_iter: int = 200,
 ) -> Dict[int, Dict[str, float]]:
     if os.path.isfile(save_json):
         _, utils = _load_utilities(save_json)
@@ -576,6 +577,7 @@ async def _compute_utilities_if_needed(
         system_message=system_prompt or "You are a helpful assistant.",
         K=K,
         concurrency_limit=concurrency_limit,
+        num_edges_per_iter=num_edges_per_iter,
     )
     utils = await learner.fit(graph, agent.chat, prompt_template, entity_name=entity_name)
     meta = {"entity_name": entity_name, "model_name": model_name}
@@ -601,6 +603,7 @@ async def main():
     parser.add_argument("--temperature", type=float, default=1.0, help="Sampling temperature for model queries")
     parser.add_argument("--max_tokens", type=int, default=100, help="Maximum tokens to generate per completion")
     parser.add_argument("--concurrency_limit", type=int, default=30, help="Maximum concurrent LLM requests")
+    parser.add_argument("--num_edges_per_iter", type=int, default=200, help="Number of preference edges sampled per active-learning iteration")
     args = parser.parse_args()
 
     os.makedirs(args.output_dir, exist_ok=True)
@@ -636,6 +639,7 @@ async def main():
         temperature=args.temperature,
         max_tokens=args.max_tokens,
         concurrency_limit=args.concurrency_limit,
+        num_edges_per_iter=args.num_edges_per_iter,
     )
 
     # Collect AI models vectors from ais_dir
@@ -679,6 +683,7 @@ async def main():
             temperature=args.temperature,
             max_tokens=args.max_tokens,
             concurrency_limit=args.concurrency_limit,
+            num_edges_per_iter=args.num_edges_per_iter,
         )
         vec = np.array([utils[i]["mean"] for i in range(len(options_list))], dtype=float)
         ent_vectors.append(vec)

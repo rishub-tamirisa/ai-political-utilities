@@ -63,6 +63,7 @@ python model_politics.py --model_name gpt-4.1 --model_provider openai --policy_o
 - `--temperature`: Sampling temperature for model queries (default: 1.0)
 - `--max_tokens`: Maximum tokens to generate per completion (default: 100)
 - `--concurrency_limit`: Maximum concurrent LLM requests (default: 30)
+- `--num_edges_per_iter`: Number of preference edges sampled per active-learning iteration (default: 200)
 
 ### Examples
 
