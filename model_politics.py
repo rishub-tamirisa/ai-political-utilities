@@ -16,6 +16,8 @@ from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 import seaborn as sns
 from tqdm import tqdm
+from enum import Enum
+from pydantic import BaseModel, Field
 
 try:
     from adjustText import adjust_text  # type: ignore
@@ -314,7 +316,7 @@ class ThurstonianActiveLearner:
                 {"role": "user", "content": prompt},
             ]
             async with semaphore:
-                responses = await chat_fn(msgs, n=self.K)
+                responses = await chat_fn(msgs, k=self.K)
             all_responses[idx] = responses
 
         prompt_tasks = [process_prompt(x) for x in enumerate(prompts)]
@@ -324,7 +326,7 @@ class ThurstonianActiveLearner:
         processed_data: List[Dict[str, Any]] = []
         total_responses = 0
         unparseable_responses = 0
-        
+
         for pidx, responses in all_responses.items():
             parsed = _parse_forced_choice(responses)
             total_responses += len(parsed)
@@ -351,6 +353,13 @@ class ThurstonianActiveLearner:
                       f"Something is likely wrong with the model - check that it's responding with 'A' or 'B' as expected.")
         graph.add_edges(processed_data)
 
+class Choice(str, Enum):
+    A = "A"
+    B = "B"
+
+class Preference(BaseModel):
+    preference: Choice = Field(description="The preferred policy option.")
+
 # ---------------------------- Chat model wrapper --------------------------- #
 class ChatAgent:
     def __init__(
@@ -361,10 +370,26 @@ class ChatAgent:
         max_tokens: int = 10,
         base_url: str = None,
     ):
+        """Create a ChatAgent.
+
+        Parameters
+        ----------
+        model_name : str
+            Name of the model to query.
+        provider : str, optional
+            LLM provider ("openai", "anthropic", etc.).
+        temperature : float, optional
+            Sampling temperature to pass to the model.
+        max_tokens : int, optional
+            Maximum tokens to sample (ignored for Gemini for now).
+        base_url : str, optional
+            Override the provider base URL.
+        """
         self.model = model_name
         self.provider = provider.lower()
         self.temperature = temperature
         self.max_tokens = max_tokens
+
         env_map = {
             "openai": {
                 "api_key": "OPENAI_API_KEY",
@@ -383,32 +408,38 @@ class ChatAgent:
                 "base_url": "https://api.x.ai/v1",
             },
         }
-        
+
         provider_config = env_map[self.provider]
         api_key = os.getenv(provider_config["api_key"])
         if not api_key:
             raise RuntimeError(f"{provider_config['api_key']} environment variable not set.")
-        
+
         self.api_key = api_key
         self.base_url = base_url if base_url is not None else provider_config["base_url"]
 
-    async def chat(self, messages: List[Dict[str, str]], n: int = 1):
+        # Instantiate a single client for reuse across multiple chat calls to
+        # avoid repeatedly creating new HTTP pools.
+        self._client = openai.AsyncOpenAI(api_key=self.api_key, base_url=self.base_url)
+
+    async def chat(self, messages: List[Dict[str, str]], k: int = 1):
         """Return n completions (default 1)."""
         _kwargs = {
             "model": self.model,
             "messages": messages,
             "temperature": self.temperature,
             "max_tokens": self.max_tokens,
-            "n": n,
+            "n": k,
+            "response_format": Preference,
         }
         # https://github.com/googleapis/python-genai/issues/626
         if self.provider == "google":
             _kwargs.pop("max_tokens") 
 
-        resp = await openai.AsyncOpenAI(api_key=self.api_key, base_url=self.base_url).chat.completions.create(**_kwargs)
-        if n == 1:
-            return resp.choices[0].message.content.strip()
-        return [c.message.content.strip() for c in resp.choices]
+        resp = await self._client.chat.completions.parse(**_kwargs)
+        if k == 1:
+            return resp.choices[0].message.parsed.preference.value if resp.choices[0].message.parsed is not None else "unparseable"
+        # Marked unparseable if no response content
+        return [c.message.parsed.preference.value if c.message.parsed is not None else "unparseable" for c in resp.choices]
 
 # --------------------------- Utility JSON helpers -------------------------- #
 
@@ -499,14 +530,27 @@ async def _compute_utilities_if_needed(
     system_prompt: Optional[str] = None,
     K: int = 5,
     base_url: str = None,
+    temperature: float = 1.0,
+    max_tokens: int = 10,
+    concurrency_limit: int = 30,
 ) -> Dict[int, Dict[str, float]]:
     if os.path.isfile(save_json):
         _, utils = _load_utilities(save_json)
         return utils
     print(f"Computing utilities for {'entity ' + entity_name if entity_name else 'model'} …")
     graph = PreferenceGraph(options)
-    agent = ChatAgent(model_name, provider=model_provider, base_url=base_url)
-    learner = ThurstonianActiveLearner(system_message=system_prompt or "You are a helpful assistant.", K=K)
+    agent = ChatAgent(
+        model_name,
+        provider=model_provider,
+        temperature=temperature,
+        max_tokens=max_tokens,
+        base_url=base_url,
+    )
+    learner = ThurstonianActiveLearner(
+        system_message=system_prompt or "You are a helpful assistant.",
+        K=K,
+        concurrency_limit=concurrency_limit,
+    )
     utils = await learner.fit(graph, agent.chat, prompt_template, entity_name=entity_name)
     meta = {"entity_name": entity_name, "model_name": model_name}
     if system_prompt is not None:
@@ -528,6 +572,9 @@ async def main():
     parser.add_argument("--system_prompt", default=None, help="Optional system prompt for AI utility computation")
     parser.add_argument("--K", type=int, default=5, help="Number of completions per prompt (utility model parameter)")
     parser.add_argument("--base_url", default=None, help="Override base URL for the LLM provider API")
+    parser.add_argument("--temperature", type=float, default=1.0, help="Sampling temperature for model queries")
+    parser.add_argument("--max_tokens", type=int, default=100, help="Maximum tokens to generate per completion")
+    parser.add_argument("--concurrency_limit", type=int, default=30, help="Maximum concurrent LLM requests")
     args = parser.parse_args()
 
     os.makedirs(args.output_dir, exist_ok=True)
@@ -560,6 +607,9 @@ async def main():
         system_prompt=args.system_prompt,
         K=args.K,
         base_url=args.base_url,
+        temperature=args.temperature,
+        max_tokens=args.max_tokens,
+        concurrency_limit=args.concurrency_limit,
     )
 
     # Collect AI models vectors from ais_dir
@@ -599,6 +649,10 @@ async def main():
             entity_name=ent,
             system_prompt=args.system_prompt,
             K=args.K,
+            base_url=args.base_url,
+            temperature=args.temperature,
+            max_tokens=args.max_tokens,
+            concurrency_limit=args.concurrency_limit,
         )
         vec = np.array([utils[i]["mean"] for i in range(len(options_list))], dtype=float)
         ent_vectors.append(vec)
