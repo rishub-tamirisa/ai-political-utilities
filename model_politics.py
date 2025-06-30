@@ -449,23 +449,39 @@ class ChatAgent:
 
     async def chat(self, messages: List[Dict[str, str]], k: int = 1):
         """Return n completions (default 1)."""
+        # Base kwargs common to all providers
         _kwargs = {
             "model": self.model,
             "messages": messages,
             "temperature": self.temperature,
-            "max_tokens": self.max_tokens,
             "n": k,
-            "response_format": Preference,
         }
-        # https://github.com/googleapis/python-genai/issues/626
-        if self.provider == "google":
-            _kwargs.pop("max_tokens") 
 
-        resp = await self._client.chat.completions.parse(**_kwargs)
-        if k == 1:
-            return resp.choices[0].message.parsed.preference.value if resp.choices[0].message.parsed is not None else "unparseable"
-        # Marked unparseable if no response content
-        return [c.message.parsed.preference.value if c.message.parsed is not None else "unparseable" for c in resp.choices]
+        # https://github.com/googleapis/python-genai/issues/626
+        if self.provider != "google":
+            _kwargs["max_tokens"] = self.max_tokens
+
+        # Structured response parsing is not yet supported by Anthropic –
+        # they will silently ignore the argument. For providers that do
+        # support it, we keep the original behaviour.
+        if self.provider != "anthropic":
+            _kwargs["response_format"] = Preference
+
+        # Decide which OpenAI helper method to call based on provider support
+        if self.provider == "anthropic":
+            # Use the generic create endpoint and read raw text content.
+            resp = await self._client.chat.completions.create(**_kwargs)
+            if k == 1:
+                content = resp.choices[0].message.content
+                return content.strip() if content is not None else "unparseable"
+            return [c.message.content.strip() if c.message.content is not None else "unparseable" for c in resp.choices]
+        else:
+            # Providers that support structured parsing (OpenAI, Google, etc.)
+            resp = await self._client.chat.completions.parse(**_kwargs)
+            if k == 1:
+                return resp.choices[0].message.parsed.preference.value if resp.choices[0].message.parsed is not None else "unparseable"
+            # Marked unparseable if no response content
+            return [c.message.parsed.preference.value if c.message.parsed is not None else "unparseable" for c in resp.choices]
 
 # --------------------------- Utility JSON helpers -------------------------- #
 
