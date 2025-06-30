@@ -244,7 +244,7 @@ class ThurstonianActiveLearner:
         Q: float = 20.0,
         K: int = 5,
         seed: int = 42,
-        concurrency_limit: int = 1000,
+        concurrency_limit: int = 30,
     ):
         self.sys_msg = system_message
         self.num_epochs = num_epochs
@@ -322,8 +322,14 @@ class ThurstonianActiveLearner:
             await fut
 
         processed_data: List[Dict[str, Any]] = []
+        total_responses = 0
+        unparseable_responses = 0
+        
         for pidx, responses in all_responses.items():
             parsed = _parse_forced_choice(responses)
+            total_responses += len(parsed)
+            unparseable_responses += parsed.count("unparseable")
+            
             valid = [c for c in parsed if c in ("A", "B")]
             if not valid:
                 continue
@@ -336,6 +342,13 @@ class ThurstonianActiveLearner:
                     "probability_A": pA,
                 }
             )
+        
+        # Check for high unparseable rate and warn
+        if total_responses > 0:
+            unparseable_rate = unparseable_responses / total_responses
+            if unparseable_rate > 0.8:
+                print(f"⚠️  WARNING: {unparseable_rate:.1%} of responses were unparseable. "
+                      f"Something is likely wrong with the model - check that it's responding with 'A' or 'B' as expected.")
         graph.add_edges(processed_data)
 
 # ---------------------------- Chat model wrapper --------------------------- #
