@@ -18,6 +18,7 @@ import seaborn as sns
 from tqdm import tqdm
 from enum import Enum
 from pydantic import BaseModel, Field
+from tenacity import AsyncRetrying, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 try:
     from adjustText import adjust_text  # type: ignore
@@ -443,8 +444,6 @@ class ChatAgent:
         self.api_key = api_key
         self.base_url = base_url if base_url is not None else provider_config["base_url"]
 
-        # Instantiate a single client for reuse across multiple chat calls to
-        # avoid repeatedly creating new HTTP pools.
         self._client = openai.AsyncOpenAI(api_key=self.api_key, base_url=self.base_url)
 
     async def chat(self, messages: List[Dict[str, str]], k: int = 1):
@@ -467,21 +466,34 @@ class ChatAgent:
         if self.provider != "anthropic":
             _kwargs["response_format"] = Preference
 
-        # Decide which OpenAI helper method to call based on provider support
+        # Retry with exponential backoff (max 5 attempts) on any exception raised
+        resp = None  # type: ignore
+        async for attempt in AsyncRetrying(
+            stop=stop_after_attempt(5),
+            wait=wait_exponential(multiplier=1, min=1, max=60),
+            retry=retry_if_exception_type(Exception),  # Retry on any exception; refine if desired
+            reraise=True,
+        ):
+            with attempt:
+                if self.provider == "anthropic":
+                    # Use the generic create endpoint and read raw text content.
+                    resp = await self._client.chat.completions.create(**_kwargs)
+                else:
+                    # Providers that support structured parsing (OpenAI, Google, etc.)
+                    resp = await self._client.chat.completions.parse(**_kwargs)
+
+        # After successful response, extract preferences according to provider capabilities
         if self.provider == "anthropic":
-            # Use the generic create endpoint and read raw text content.
-            resp = await self._client.chat.completions.create(**_kwargs)
             if k == 1:
-                content = resp.choices[0].message.content
+                content = resp.choices[0].message.content  # type: ignore
                 return content.strip() if content is not None else "unparseable"
-            return [c.message.content.strip() if c.message.content is not None else "unparseable" for c in resp.choices]
-        else:
-            # Providers that support structured parsing (OpenAI, Google, etc.)
-            resp = await self._client.chat.completions.parse(**_kwargs)
-            if k == 1:
-                return resp.choices[0].message.parsed.preference.value if resp.choices[0].message.parsed is not None else "unparseable"
-            # Marked unparseable if no response content
-            return [c.message.parsed.preference.value if c.message.parsed is not None else "unparseable" for c in resp.choices]
+            return [c.message.content.strip() if c.message.content is not None else "unparseable" for c in resp.choices]  # type: ignore
+
+        # Providers that support structured parsing (OpenAI, Google, etc.)
+        if k == 1:
+            return resp.choices[0].message.parsed.preference.value if resp.choices[0].message.parsed is not None else "unparseable"
+        # Marked unparseable if no response content
+        return [c.message.parsed.preference.value if c.message.parsed is not None else "unparseable" for c in resp.choices]
 
 # --------------------------- Utility JSON helpers -------------------------- #
 
