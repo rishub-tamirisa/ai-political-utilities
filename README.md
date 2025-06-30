@@ -60,6 +60,9 @@ python model_politics.py --model_name gpt-4.1 --model_provider openai --policy_o
 #### Advanced Options
 - `--system_prompt`: Custom system prompt for the AI model evaluation (affects only AI utilities, not entities)
 - `--K`: Number of completions per prompt for robustness (default: 5)
+- `--temperature`: Sampling temperature for model queries (default: 1.0)
+- `--max_tokens`: Maximum tokens to generate per completion (default: 100)
+- `--concurrency_limit`: Maximum concurrent LLM requests (default: 30)
 
 ### Examples
 
