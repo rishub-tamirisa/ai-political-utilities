@@ -304,7 +304,15 @@ class ThurstonianActiveLearner:
         prompt_template: str,
         entity_name: Optional[str] = None,
     ):
-        pref_data, prompts, idx2pair = graph.generate_prompts(pair_list, prompt_template, entity_name)
+        # Duplicate each pair to include both (A: opt1, B: opt2) and the swapped ordering.
+        pair_variants: List[Tuple[int, int]] = []
+        for a_id, b_id in pair_list:
+            pair_variants.append((a_id, b_id))  # original orientation
+            pair_variants.append((b_id, a_id))  # swapped orientation
+
+        # Generate prompts for the expanded list.
+        _ , prompts, idx2pair = graph.generate_prompts(pair_variants, prompt_template, entity_name)
+
         all_responses: Dict[int, List[str]] = {i: [] for i in range(len(prompts))}
 
         semaphore = asyncio.Semaphore(self.concurrency)
@@ -323,24 +331,42 @@ class ThurstonianActiveLearner:
         for fut in tqdm(asyncio.as_completed(prompt_tasks), total=len(prompt_tasks), desc="Querying model"):
             await fut
 
+        # Aggregate counts across both orientations so that each undirected pair
+        # is represented by a single edge in the preference graph.
         processed_data: List[Dict[str, Any]] = []
         total_responses = 0
         unparseable_responses = 0
+
+        # Map canonical (min_id, max_id) -> {"count_first": int, "total": int}
+        agg_counts: Dict[Tuple[int, int], Dict[str, int]] = defaultdict(lambda: {"count_first": 0, "total": 0})
 
         for pidx, responses in all_responses.items():
             parsed = _parse_forced_choice(responses)
             total_responses += len(parsed)
             unparseable_responses += parsed.count("unparseable")
-            
+
             valid = [c for c in parsed if c in ("A", "B")]
             if not valid:
                 continue
-            pA = valid.count("A") / len(valid)
-            a_id, b_id = idx2pair[pidx]
+
+            first_id, second_id = idx2pair[pidx]
+            canonical = tuple(sorted((first_id, second_id)))  # undirected key
+
+            for choice in valid:
+                chosen_id = first_id if choice == "A" else second_id
+                if chosen_id == canonical[0]:
+                    agg_counts[canonical]["count_first"] += 1
+            agg_counts[canonical]["total"] += len(valid)
+
+        # Convert aggregated counts to processed_data entries
+        for (id_A, id_B), cnts in agg_counts.items():
+            if cnts["total"] == 0:
+                continue
+            pA = cnts["count_first"] / cnts["total"]
             processed_data.append(
                 {
-                    "option_A": graph.options_by_id[a_id],
-                    "option_B": graph.options_by_id[b_id],
+                    "option_A": graph.options_by_id[id_A],
+                    "option_B": graph.options_by_id[id_B],
                     "probability_A": pA,
                 }
             )
@@ -348,7 +374,7 @@ class ThurstonianActiveLearner:
         # Check for high unparseable rate and warn
         if total_responses > 0:
             unparseable_rate = unparseable_responses / total_responses
-            if unparseable_rate > 0.8:
+            if unparseable_rate > 0.50:
                 print(f"⚠️  WARNING: {unparseable_rate:.1%} of responses were unparseable. "
                       f"Something is likely wrong with the model - check that it's responding with 'A' or 'B' as expected.")
         graph.add_edges(processed_data)
