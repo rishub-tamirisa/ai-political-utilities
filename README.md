@@ -55,7 +55,7 @@ python model_politics.py --model_name gpt-4.1 --model_provider openai --policy_o
 
 #### Output and Caching
 - `--output_dir`: Directory to save results (default: political_results)
-- `--precomputed_utilities_path`: Directory containing existing utility files to avoid recomputation
+- `--precomputed_utilities_path`: Directory containing existing utility files to avoid recomputation (Only needed if results were explicitly moved to another location that is different from the default/set output directory)
 
 #### Advanced Options
 - `--system_prompt`: Custom system prompt for the AI model evaluation (affects only AI utilities, not entities)
