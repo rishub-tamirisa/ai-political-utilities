@@ -4,6 +4,15 @@ This repository contains a script for computing political utilities of LLMs. The
 
 ![image](https://github.com/user-attachments/assets/14657ea4-38b3-4394-88c5-f7acdba7b4b0)
 
+> [!IMPORTANT]  
+> ** To run the fastest version of this script, use the `policy_options_mini.json` dataset instead of `policy_options_full.json`, and use the default script hyperparameters, e.g.,**
+> 
+> ```bash
+> python model_politics.py --model_name <MODEL_NAME> --model_provider <MODEL_PROVIDER> --policy_options data/policy_options_mini.json --entities data/entities.json --edge_multiplier 1.0 --num_edges_per_iter 100 --K 3
+> ```
+>
+> **Note:** Increasing `K` and `num_edges_per_iter` will increase the runtime of the script, but also lower the variance in the results.
+
 ## Overview
 
 The script works by:
@@ -34,6 +43,12 @@ pip install openai numpy torch scikit-learn matplotlib seaborn tqdm adjustText
 
 ## Usage
 
+### Fastest evaluation command (`policy_options_mini.json` is a subset of `policy_options_full.json` with 50 policy options)
+
+```bash
+python model_politics.py --model_name <MODEL_NAME> --model_provider <MODEL_PROVIDER> --policy_options data/policy_options_mini.json --entities data/entities.json
+```
+
 ### Basic Command
 
 ```bash
@@ -59,11 +74,12 @@ python model_politics.py --model_name gpt-4.1 --model_provider openai --policy_o
 
 #### Advanced Options
 - `--system_prompt`: Custom system prompt for the AI model evaluation (affects only AI utilities, not entities)
-- `--K`: Number of completions per prompt for robustness (default: 5)
+- `--K`: Number of completions per prompt for robustness (default: 3)
 - `--temperature`: Sampling temperature for model queries (default: 1.0)
 - `--max_tokens`: Maximum tokens to generate per completion (default: 100)
 - `--concurrency_limit`: Maximum concurrent LLM requests (default: 30)
 - `--num_edges_per_iter`: Number of preference edges sampled per active-learning iteration (default: 200)
+- `--edge_multiplier`: Multiplier for target number of edges (default: 1.0)
 
 ### Examples
 

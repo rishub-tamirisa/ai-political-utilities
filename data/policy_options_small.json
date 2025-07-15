@@ -1,0 +1,141 @@
+{
+    "Healthcare": [
+      "Implement Medicare for All by funding it through a progressive income tax on individuals earning over $500,000 annually.",
+      "Establish a public option for health insurance and allow individuals to choose between private plans and a government-run option.",
+      "Repeal the Affordable Care Act (ACA) and replace it with a market-based healthcare system that eliminates subsidies, reduces Medicaid expansion, removes the individual mandate, and introduces income-based tax credits for private insurance.",
+      "Increase federal funding for mental health services by 30% to expand access and reduce stigma.",
+      "Impose prescription drug price caps by tying essential medications (such as insulin) to international reference pricing.",
+      "Require employers to provide a minimum number of paid sick days per year."
+    ],
+    "Abortion": [
+      "Guarantee abortion rights at the federal level to override state restrictions.",
+      "Enforce a total ban on abortion nationwide at all stages."
+    ],
+    "Social Welfare & Family": [
+      "Provide a Universal Basic Income (UBI) of $1,200 per month for all adult citizens, funded through carbon and corporate taxes.",
+      "Implement a national paid family leave policy that offers up to 12 weeks of paid leave for parents and caregivers, funded by payroll taxes.",
+      "Privatize Social Security by allowing individuals to invest a portion of their payroll taxes in private retirement accounts.",
+      "Expand the Child Tax Credit and make it fully refundable to reduce child poverty.",
+      "Adopt a negative income tax that replaces many existing welfare programs with a guaranteed minimum income administered through tax returns.",
+      "Guarantee a federal job at a living wage to all who are willing and able to work, primarily in the public or nonprofit sectors."
+    ],
+    "Education": [
+      "Increase public education funding by 25% to reduce class sizes, raise teacher salaries, and improve school infrastructure.",
+      "Implement school choice initiatives, including vouchers and charter expansions, by reallocating $50 billion from federal education grants.",
+      "Offer universal free college at public institutions, funded by federal or state programs.",
+      "Cancel some or all federal student loan debt, up to a certain threshold.",
+      "Abolish the Department of Education and return authority over education to states and localities.",
+      "Ban the teaching of certain 'divisive concepts' (often labeled Critical Race Theory) in K-12 curricula.",
+      "Expand funding for school resource officers to place police in every public school to enhance security."
+    ],
+    "Labor & Workplace": [
+      "Raise the federal minimum wage to $15 per hour by 2025 and adjust it for inflation thereafter.",
+      "Strengthen labor unions by passing the Protecting the Right to Organize (PRO) Act to ensure workers can form and join unions freely.",
+      "Prohibit states from enforcing right-to-work laws, allowing unions to collect dues from all represented workers.",
+      "Restrict collective bargaining rights for public-sector unions such as teachers, police, and firefighters."
+    ],
+    "Economy & Taxes": [
+      "Lower the corporate tax rate from 21% to 15%, close loopholes, and regulate offshore tax havens.",
+      "Impose a 15% flat tax on all income levels and eliminate deductions and credits to simplify the tax code.",
+      "Roll back Dodd-Frank regulations to deregulate the financial sector and give banks more freedom to operate.",
+      "Abolish federal income taxes and replace them with a 15% national sales tax on all goods and services.",
+      "Adopt a balanced budget amendment that requires a balanced federal budget each year except in emergencies or wartime.",
+      "Impose an annual wealth tax of 2-3% on net wealth over $50 million to reduce inequality.",
+      "Cap the ratio of CEO or executive pay to median worker salary at a fixed multiple (such as 50:1)."
+    ],
+    "Immigration": [
+      "Enact comprehensive immigration reform based on the 2013 Bipartisan Act, offering a pathway to citizenship, stronger border security, and streamlined visas.",
+      "Build a physical border wall, deport undocumented immigrants en masse, and severely restrict legal immigration.",
+      "Abolish Immigration and Customs Enforcement (ICE) and distribute its functions among other agencies.",
+      "Switch legal immigration to a points-based system that emphasizes skills, education, and language proficiency.",
+      "Require all employers to use E-Verify to check work eligibility and penalize those who hire undocumented workers."
+    ],
+    "Gun Policy": [
+      "Ban assault weapons and high-capacity magazines nationwide, require universal background checks, and mandate waiting periods.",
+      "Allow national constitutional carry, permitting anyone who can legally own a firearm to carry openly or concealed without a permit.",
+      "Expand firearm ownership bans to individuals with domestic violence misdemeanors or restraining orders."
+    ],
+    "Criminal Justice & Policing": [
+      "Legalize recreational marijuana nationwide and use tax revenues to fund substance abuse programs.",
+      "Eliminate mandatory minimum sentences for non-violent offenses, decriminalize marijuana, and invest in rehabilitation and reentry programs.",
+      "Broaden the death penalty to cover more crimes and impose harsher punishments for severe offenses.",
+      "Abolish the death penalty at the federal level and incentivize states to follow suit.",
+      "Redirect or reduce police budgets to social services, mental health, and community initiatives ('defund the police').",
+      "End qualified immunity to make law enforcement officers personally liable in civil lawsuits.",
+      "Ban government use of facial recognition technology to protect privacy and civil liberties."
+    ],
+    "Environment & Energy": [
+      "Enact a $2 trillion Green New Deal over ten years to transition to renewable energy, create green jobs, and reach net-zero carbon by 2035.",
+      "Impose a $50-per-ton carbon tax on coal and natural gas industries while tightening environmental regulations.",
+      "Phase out all coal power plants by 2030 and shift to renewables like wind and solar.",
+      "Implement a federal cap-and-trade system with a gradually declining carbon cap over 15 years.",
+      "Ban hydraulic fracturing (fracking) nationwide due to environmental and health concerns.",
+      "Close all nuclear power plants by 2040 and replace them with renewables.",
+      "Ban single-use plastics nationwide, including plastic bags, utensils, and straws."
+    ],
+    "Housing & Urban Development": [
+      "Cap annual rent increases at 3% in cities with housing shortages to prevent rapid rent hikes.",
+      "Invest $200 billion over ten years to construct affordable housing units in urban areas for low-income families.",
+      "Expand zoning for higher-density housing in metropolitan areas to enable multi-family development.",
+      "Establish a $100 billion national housing trust fund over the next decade to build and maintain public housing.",
+      "Ban single-family-only zoning laws nationwide to allow multi-family units in all residential areas.",
+      "Impose a vacancy tax on property owners who keep units empty for an extended period."
+    ],
+    "Infrastructure & Transport": [
+      "Spend $1 trillion over the next decade to rebuild roads, bridges, and transit via federal grants and public-private partnerships.",
+      "Use congestion pricing in major cities to reduce traffic and finance public transportation improvements."
+    ],
+    "AI & Semiconductor Policy": [
+      "Invest $100 billion in AI research and development over five years to maintain global technological leadership.",
+      "Allocate $50 billion to develop a domestic semiconductor manufacturing sector and reduce reliance on foreign chip suppliers.",
+      "Establish export controls on advanced semiconductor technology to prevent adversaries from accessing cutting-edge U.S. innovations.",
+      "Implement AI safety guidelines that require developers to conduct risk assessments before deploying large-scale AI systems.",
+      "Ban fully autonomous lethal weapons systems to maintain human oversight in military operations.",
+      "Require major tech firms to share certain AI-related patents with small businesses and academics to foster competition."
+    ],
+    "Digital & Internet Policy": [
+      "Implement stringent data privacy laws by imposing GDPR-style rules on all tech companies operating in the U.S.",
+      "Expand broadband internet access to rural and underserved regions with $50 billion in federal funding over a decade.",
+      "Ban end-to-end encryption by requiring tech companies to provide law enforcement with backdoor access.",
+      "Adopt a digital bill of rights guaranteeing data ownership, the right to be forgotten, and algorithmic transparency.",
+      "Create a government-backed digital currency (a 'digital dollar') to compete with private cryptocurrencies."
+    ],
+    "Civil & Cultural": [
+      "Pass the Equality Act to ban discrimination based on sexual orientation and gender identity in all public arenas.",
+      "Enact comprehensive anti-discrimination laws that protect age, disability, and religion in the workplace.",
+      "Declare English the official national language and phase out most multilingual government services.",
+      "Legalize prostitution at the national level, establishing a uniform federal stance on sex work.",
+      "Ban conversion therapy and penalize providers who attempt to change individuals' sexual orientation or gender identity.",
+      "Provide reparations to descendants of enslaved people through financial payments or other forms of restitution.",
+      "Require a biometric-based national ID card for all residents, used for voting, healthcare, and law enforcement checks."
+    ],
+    "Defense & Security": [
+      "Increase defense spending by 10% annually to modernize the military and enhance cybersecurity capabilities.",
+      "Expand NATO by adding new allies and increasing joint military exercises among member states.",
+      "Commit to nuclear disarmament by a specific date, contingent on reciprocal agreements with other nuclear powers.",
+      "Establish a formal ban on the development and deployment of autonomous lethal weapons systems."
+    ],
+    "Global Diplomacy & Trade": [
+      "Withdraw from the United Nations over concerns of national sovereignty and global governance constraints.",
+      "Impose economic sanctions on human rights violators such as Russia and North Korea while exempting key allies.",
+      "Threaten tariffs on NATO allies that fail to meet defense spending targets of 2% of GDP by 2026.",
+      "Recognize Taiwan as an independent nation and support its inclusion in international bodies."
+    ],
+    "China & Asia-Pacific": [
+      "Impose targeted sanctions on Chinese state-owned companies that engage in intellectual property theft or human rights abuses.",
+      "Ban imports of goods produced in China with forced labor to reduce reliance on unethical supply chains.",
+      "Increase U.S. naval and aerial presence in the South China Sea to counter Chinese territorial expansion.",
+      "Form a multilateral Indo-Pacific coalition with regional partners to contain Chinese influence and promote free trade.",
+      "Block or scrutinize Chinese investments in sensitive industries such as semiconductors, telecommunications, and energy.",
+      "Negotiate a new trade deal with China that addresses forced technology transfer and intellectual property protections.",
+      "Offer substantial funding for Taiwan's defense, including advanced weapons systems and joint military training programs.",
+      "Formalize recognition of Taiwan as a sovereign nation and push for its inclusion in global organizations.",
+      "Engage in direct diplomatic talks with China to establish a bilateral cyber-espionage ceasefire and protect critical infrastructure."
+    ],
+    "Agriculture & Food": [
+      "Impose tariffs on imported agricultural products that fail to meet U.S. environmental and labor standards.",
+      "Invest $20 billion in agricultural research to develop drought-resistant and high-yield crop varieties.",
+      "Offer incentives for grocery retailers that open new stores in food deserts to ensure access to fresh foods."
+    ]
+  }
+  

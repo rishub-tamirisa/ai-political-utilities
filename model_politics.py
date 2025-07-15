@@ -240,12 +240,12 @@ class ThurstonianActiveLearner:
         system_message: str = "You are a helpful assistant.",
         num_epochs: int = 500,
         lr: float = 0.01,
-        edge_multiplier: float = 2.0,
+        edge_multiplier: float = 1.0,
         degree: int = 2,
-        num_edges_per_iter: int = 200,
+        num_edges_per_iter: int = 100,
         P: float = 10.0,
         Q: float = 20.0,
-        K: int = 5,
+        K: int = 3,
         seed: int = 42,
         concurrency_limit: int = 30,
     ):
@@ -274,8 +274,7 @@ class ThurstonianActiveLearner:
         target_edges = int(self.edge_multiplier * n * math.log2(n))
         init_edges = (n * self.degree) // 2
         remaining = max(0, target_edges - init_edges)
-        iterations = math.ceil(remaining / self.num_edges_per_iter) if remaining else 0
-
+        iterations = math.floor(remaining / self.num_edges_per_iter) if remaining else 0
         edge_batch = graph.sample_regular_graph(self.degree, seed=self.seed)
         await self._query_and_add(graph, edge_batch, chat_fn, prompt_template, entity_name)
 
@@ -588,6 +587,7 @@ async def _compute_utilities_if_needed(
     max_tokens: int = 10,
     concurrency_limit: int = 30,
     num_edges_per_iter: int = 200,
+    edge_multiplier: float = 2.0,
 ) -> Dict[int, Dict[str, float]]:
     if os.path.isfile(save_json):
         _, utils = _load_utilities(save_json)
@@ -606,6 +606,7 @@ async def _compute_utilities_if_needed(
         K=K,
         concurrency_limit=concurrency_limit,
         num_edges_per_iter=num_edges_per_iter,
+        edge_multiplier=edge_multiplier,
     )
     utils = await learner.fit(graph, agent.chat, prompt_template, entity_name=entity_name)
     meta = {"entity_name": entity_name, "model_name": model_name}
@@ -626,12 +627,13 @@ async def main():
     parser.add_argument("--entity_model_name", default="gpt-4.1")
     parser.add_argument("--entity_model_provider", default="openai", choices=["openai", "anthropic", "google", "xai"])
     parser.add_argument("--system_prompt", default=None, help="Optional system prompt for AI utility computation")
-    parser.add_argument("--K", type=int, default=5, help="Number of completions per prompt (utility model parameter)")
+    parser.add_argument("--K", type=int, default=3, help="Number of completions per prompt (utility model parameter)")
     parser.add_argument("--base_url", default=None, help="Override base URL for the LLM provider API")
     parser.add_argument("--temperature", type=float, default=1.0, help="Sampling temperature for model queries")
     parser.add_argument("--max_tokens", type=int, default=100, help="Maximum tokens to generate per completion")
     parser.add_argument("--concurrency_limit", type=int, default=30, help="Maximum concurrent LLM requests")
     parser.add_argument("--num_edges_per_iter", type=int, default=200, help="Number of preference edges sampled per active-learning iteration")
+    parser.add_argument("--edge_multiplier", type=float, default=1.0, help="Multiplier for target number of edges (default: 1.0)")
     args = parser.parse_args()
 
     os.makedirs(args.output_dir, exist_ok=True)
@@ -668,6 +670,7 @@ async def main():
         max_tokens=args.max_tokens,
         concurrency_limit=args.concurrency_limit,
         num_edges_per_iter=args.num_edges_per_iter,
+        edge_multiplier=args.edge_multiplier,
     )
 
     # Collect AI models vectors from ais_dir
@@ -712,6 +715,7 @@ async def main():
             max_tokens=args.max_tokens,
             concurrency_limit=args.concurrency_limit,
             num_edges_per_iter=args.num_edges_per_iter,
+            edge_multiplier=args.edge_multiplier,
         )
         vec = np.array([utils[i]["mean"] for i in range(len(options_list))], dtype=float)
         ent_vectors.append(vec)
