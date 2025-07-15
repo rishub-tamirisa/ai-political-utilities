@@ -8,10 +8,10 @@ This repository contains a script for computing political utilities of LLMs. The
 > To run the fastest version of this script, use the `policy_options_mini.json` dataset instead of `policy_options_full.json`, and use the default script hyperparameters, e.g.,
 > 
 > ```bash
-> python model_politics.py --model_name <MODEL_NAME> --model_provider <MODEL_PROVIDER> --policy_options data/policy_options_mini.json --entities data/entities.json --edge_multiplier 1.0 --num_edges_per_iter 100 --K 3
+> python model_politics.py --model_name <MODEL_NAME> --model_provider <MODEL_PROVIDER> --policy_options data/policy_options_mini.json --entities data/entities.json --edge_multiplier 1.0 --num_edges_per_iter 200 --K 3
 > ```
 >
-> **Note:** Increasing `K` and `num_edges_per_iter` will increase the runtime of the script, but also lower the variance in the results.
+> **Note:** Increasing `K` and `num_edges_per_iter` will increase the runtime of the script, but also lower variance in the results.
 
 ## Overview
 

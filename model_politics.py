@@ -242,7 +242,7 @@ class ThurstonianActiveLearner:
         lr: float = 0.01,
         edge_multiplier: float = 1.0,
         degree: int = 2,
-        num_edges_per_iter: int = 100,
+        num_edges_per_iter: int = 200,
         P: float = 10.0,
         Q: float = 20.0,
         K: int = 3,
