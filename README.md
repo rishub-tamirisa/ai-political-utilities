@@ -11,7 +11,7 @@ This repository contains a script for computing political utilities of LLMs. The
 > python model_politics.py --model_name <MODEL_NAME> --model_provider <MODEL_PROVIDER> --policy_options data/policy_options_mini.json --entities data/entities.json --edge_multiplier 1.0 --num_edges_per_iter 200 --K 3
 > ```
 >
-> **Note:** Increasing `K` and `num_edges_per_iter` will increase the runtime of the script, but also lower variance in the results.
+> **Note:** Increasing `K` and `num_edges_per_iter` will increase the runtime of the script, but also lower variance in the results. It's recommended to use the cheapest values for obtaining real politicians'/entities' utilities, and then increase them when testing models.
 
 ## Overview
 
